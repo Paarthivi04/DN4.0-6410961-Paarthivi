@@ -1,13 +1,12 @@
-DELIMITER $$
-
-CREATE PROCEDURE UpdateEmployeeBonus(
-    IN dept_name VARCHAR(50),
-    IN bonus_percent DECIMAL(5,2)
-)
+CREATE OR REPLACE PROCEDURE UpdateEmployeeBonus(
+    p_department IN VARCHAR2,
+    p_bonus_pct  IN NUMBER 
+) IS
 BEGIN
     UPDATE Employees
-    SET Salary = Salary + (Salary * bonus_percent / 100)
-    WHERE Department = dept_name;
-END$$
+    SET salary = salary + (salary * p_bonus_pct)
+    WHERE department = p_department;
 
-DELIMITER ;
+    COMMIT;
+END;
+/

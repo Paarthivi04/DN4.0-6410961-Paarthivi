@@ -1,26 +1,29 @@
-DELIMITER $$
-
-CREATE PROCEDURE TransferFunds(
-    IN fromAccount INT,
-    IN toAccount INT,
-    IN amount DECIMAL(10,2)
-)
+CREATE OR REPLACE PROCEDURE TransferFunds(
+    p_from_account IN NUMBER,
+    p_to_account   IN NUMBER,
+    p_amount       IN NUMBER
+) IS
+    v_balance NUMBER;
 BEGIN
-    DECLARE fromBalance DECIMAL(10,2);
-
-    SELECT Balance INTO fromBalance
+    
+    SELECT balance INTO v_balance
     FROM BankAccounts
-    WHERE AccountID = fromAccount;
+    WHERE account_id = p_from_account;
 
-    IF fromBalance >= amount THEN
-        UPDATE BankAccounts
-        SET Balance = Balance - amount
-        WHERE AccountID = fromAccount;
-
-        UPDATE BankAccounts
-        SET Balance = Balance + amount
-        WHERE AccountID = toAccount;
+    IF v_balance < p_amount THEN
+        RAISE_APPLICATION_ERROR(-20001, 'Insufficient balance in source account.');
     END IF;
-END$$
 
-DELIMITER ;
+   
+    UPDATE BankAccounts
+    SET balance = balance - p_amount
+    WHERE account_id = p_from_account;
+
+    
+    UPDATE BankAccounts
+    SET balance = balance + p_amount
+    WHERE account_id = p_to_account;
+
+    COMMIT;
+END;
+/
